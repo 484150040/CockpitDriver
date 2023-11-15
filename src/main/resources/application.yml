@@ -1,0 +1,113 @@
+server:
+  port: ${RANDOM_PORT:8181}  # 获取系统的环境变量
+  use-forward-headers: true
+  tomcat:
+    remote-ip-header: X-Real-IP
+    protocol-header: X-Forwarded-Proto
+  servlet:
+    context-path: /cockpit
+spring:
+  gateway:
+    globalcors:  #全局的跨域处理
+      add-to-simple-url-handler-mapping: true  #解决options请求被拦截问题
+      corsConfigurations:
+        '[/**]':
+          allowedHeaders: "*"   # 允许在请求头中携带的头信息
+          allowedOrigins: "*"
+          maxAge: 360000 # 这次跨域检测有效期
+          allowedMethods:
+            - GET
+            - POST
+            - DELETE
+            - PUT
+            - OPTION
+  datasource:
+    # primary:
+    name: digital
+    url: jdbc:mysql://${MYSQL_HOST:172.17.6.101}:${MYSQL_PORT:3306}/iotosdriver?autoReconnect=true&connectTimeout=10000&socketTimeout=30000&useUnicode=true&characterEncoding=UTF8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: KeChuang!888
+    #type: org.apache.commons.dbcp2.BasicDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    maxActive: 500
+  cloud:
+    client:
+      hostname: ${DEV_HOST}
+  aop:
+    auto: true
+    proxy-target-class: false
+  jpa:
+    hibernate:
+      ddl-auto: update  # 第一次建表create  后面用update,要不然每次重启都会新建表
+    show-sql: true #打印执行的sql语句
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect #设置数据库方言  记住必须要使用 MySQL5InnoDBDialect 指定数据库类型对应InnoDB  ;如果使用MySQLDialect 则对应的是MyISAM
+  logging:
+    config: classpath:logback.xml
+  profiles:
+    active: cockpit
+
+#大华的参数
+icc:
+  host: 172.17.1.2
+  clientId: kechuang
+  clientSecret: bf8093df-8c98-4a35-a349-cb527874d73a
+  username: openAPI
+  password: kechuang123
+camera:
+  url: http://172.17.6.104:8899/camera/device/getElevatorWorkInfo
+#物联平台参数
+isyscore:
+  #连接超时 ms
+  connect-timeout: 3000
+  #读取超时 ms
+  read-timeout: 15000
+  #必填项，服务网关地址配置, IP 一般为本地OS 实例部署所在的服务器网络 IP
+  #serverHost: {此处替换http/https}://{此处替换服务器IP或网关域名}:{此处替换服务器端口(38080)或网关端口(31000)}
+  serverHost: http://172.17.6.102:38080
+  #  serverHost: http://isc-route-service:31000
+  #必填项，APPID 由平台分配(现阶段开放平台未公开发布, 可通过UUID.random 生成)，可通过UUID工具生成随机码后, 粘贴到此处
+  appId: f8a05666-ad41-43a3-897d-2cbc0ce33d5a
+  #必填项，应用标识码作为单个 OS 实例中应用的唯一业务标识, 只能以英文字符为值, 最长64位
+  #由业务方或开发者自行命名, 如helloworld, 普通的命名方式容易发生重复冲突, 建议加上一个6位随机码作为后缀, 如helloworld-sn153h
+  #appCode需要满足以下正则[a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*
+  #例如小写字母与数字-
+  appCode: lamp-kechuang-123
+  #必填项，应用名称可以是中文、英文、数字, 最长 64 位，推荐尽量简短义明，应用名称作为OS桌面应用菜单上的显示名称
+  appName: 科创中心
+  #必填项，是否主服务,默认为true
+  isMainService: true
+  #必填项，应用注册中心地址 ps.可以参考isyscore.serverHost配置
+  registerAppUrl: ${isyscore.serverHost}
+  #非必填项，应用功能列表 API, 应用接入 OS 权限管理, 需要提供 aclApi. OS 将自动回调此 API 并在权限管理功能上渲染其定义的树状结构
+  #aclApi配置的接口url必须是服务器允许访问到的地址!
+  #aclApi: {此处替换http/https}://{此处替换当前服务ip}:{此处替换当前服务port}/api/app/{此处补充完整api}
+  #非必填项，应用功能列表 API 自动注册开关.当其值为 true 时,应用启动过程中将自动注册定义好的 aclApi
+  #autoRegisterAclAPI: {此处替换true/false}
+  #非必填项，路由服务ID, 默认值${isyscore.appCode}-service-svc
+  #service-id: ${isyscore.appCode}-service-svc
+  #非必填项，配置服务名称, 默认值${isyscore.appCode}-service-svc
+  #service-name: ${isyscore.appCode}-service-svc
+  #非必填项，配置服务路径,默认/api/app/${isyscore.appCode}/**
+  #service-path: /api/app/${isyscore.appCode}/**
+  #非必填项，配置服务地址, 默认http://${isyscore.appCode}-service-svc:8080
+  service-url: http://${isyscore.appCode}-service-svc:${server.port}
+  #非必填项，应用类型：
+  #3 表示三方应用 (默认)
+  #5 表示外链应用。外链应用需要配置跳转链接(redirectUrl), 安装或服务启动成功后，通过OS桌面菜单入口点击会跳转到新窗口并打开外链, 外链应用暂不支持应用管理功能
+  #10 表示内嵌应用，类似于后台程序，没有桌面菜单入口, 内嵌应用暂不支持应用管理
+  #type: 3
+  #非必填项，不需要登陆的url列表, 用来配置不需要登录校验的接口列表, 支持批量“;”隔开,支持模糊匹配”**”表示
+  #exclude-url: /api/app/**
+  #非必填项，该字段用来控制应用是否在桌面菜单显示应用入口; 1 表示显示, 2 表示不显示, 默认为1
+  #in-menu: 1
+  #非必填项，应用版本号, 该字段在应用安装完成后生效, 显示在系统运维 > 应用管理 > 应用详情页面, 与打包构建填写的版本号同一作用, 优先级高于安装包的版本号定义
+  #appVersion: v1.0.0
+  #非必填项，数据权限api,应用接入 iSysCore OS 数据权限管理，则需要提供 dacApi。
+  #dacApi: {此处替换http/https}://{此处替换当前服务ip}:{此处替换当前服务port}/api/app/{此处补充完整api}
+  #非必填项，跳转链接,当type为5(外链应用)时, 需要配置可以访问一个绝对路径用来跳转
+  #redirectUrl: {http/https}://www.baidu.com
+  #非必填项，登录账号, 由指令集分配或自行创建的用户账号, 当需要访问OS中需要登录的OPEN API时, 同时配置正确的账号和密码, 可以减少自行获取登录token的编码过程
+  loginName: admin
+  #非必填项，登录密码
+  password: KeChuang!888
+

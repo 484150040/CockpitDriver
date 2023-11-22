@@ -39,7 +39,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update  # 第一次建表create  后面用update,要不然每次重启都会新建表
-    show-sql: true #打印执行的sql语句
+    show-sql: false #打印执行的sql语句
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect #设置数据库方言  记住必须要使用 MySQL5InnoDBDialect 指定数据库类型对应InnoDB  ;如果使用MySQLDialect 则对应的是MyISAM
   logging:
     config: classpath:logback.xml

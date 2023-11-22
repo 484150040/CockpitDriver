@@ -14,6 +14,10 @@ import java.util.Date;
 @EntityListeners(AuditingEntityListener.class)
 public class Cbdata {
 
+    @Id
+    @Column(name = "id",columnDefinition = "VARCHAR(500) COMMENT 'id主键:住址加时间'")
+    private String id;
+
     @Column(name = "xm",columnDefinition = "VARCHAR(150) COMMENT '姓名'")
     private String xm;
 
@@ -26,7 +30,6 @@ public class Cbdata {
     @Column(name = "cbz",columnDefinition = "VARCHAR(150) COMMENT '抄表值'")
     private String cbz;
 
-    @Id
     @Column(name = "cbrq",columnDefinition = "VARCHAR(150) COMMENT '抄表日期'")
     private Date cbrq;
 
